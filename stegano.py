@@ -1,8 +1,7 @@
+import sys
 from PIL import Image
 
-
 class Stegano(object):
-
     def encode(self, image, info='Aguangromanuer una peich ola k ase'):
         im = Image.open(image)
         px = im.load()
@@ -39,7 +38,15 @@ class Stegano(object):
         return info[:-1]
 
 
-st = Stegano()
+if __name__ == "__main__":
+    st = Stegano()
+    try:
+        if sys.argv[1] == 'encode':
+            st.encode(sys.argv[2], sys.argv[3])
+            print('Encoded')
+        if sys.argv[1] == 'decode':
+            print(st.decode('dirty.png'))
+    except:
+        pass
 
-st.encode('clean.png')
-print(st.decode('dirty.png'))
+
