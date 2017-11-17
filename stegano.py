@@ -43,9 +43,12 @@ if __name__ == "__main__":
     st = Stegano()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-e", "--encode", help="encode given string into given image", nargs=2,
+    parser.add_argument("-e", "--encode",
+                        help="Encode given string into given image. "
+                             "\nIf the string contains spaces type it \"between quotes\"",
+                        nargs=2,
                         metavar=('STRING', 'IMAGE'))
-    parser.add_argument("-d", "--decode", help="decode from given image", nargs=1, metavar='IMAGE')
+    parser.add_argument("-d", "--decode", help="Decode from given image", nargs=1, metavar='IMAGE')
     args = parser.parse_args()
     # print(args.decode)
     # print(args.encode)
