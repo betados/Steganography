@@ -6,6 +6,12 @@ class Stegano(object):
     def encode(self, info, image):
         im = Image.open(image)
         px = im.load()
+        if isinstance(px[0, 0], int):
+            print("image is B&W, only RGBA supported for now")
+            exit()
+        if len(px[0, 0]) != 4:
+            print("Only RGBA supported for now")
+            exit()
         try:
             info = str(info)
         except:
