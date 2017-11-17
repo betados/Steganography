@@ -1,9 +1,9 @@
-import sys
 from PIL import Image
+import argparse
 
 
 class Stegano(object):
-    def encode(self, image, info):
+    def encode(self, info, image):
         im = Image.open(image)
         px = im.load()
         try:
@@ -41,11 +41,17 @@ class Stegano(object):
 
 if __name__ == "__main__":
     st = Stegano()
-    try:
-        if sys.argv[1] == 'encode':
-            st.encode(sys.argv[2], sys.argv[3])
-            print('Encoded')
-        if sys.argv[1] == 'decode':
-            print(st.decode('dirty.png'))
-    except:
-        pass
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-e", "--encode", help="encode given string into given image", nargs=2,
+                        metavar=('STRING', 'IMAGE'))
+    parser.add_argument("-d", "--decode", help="decode from given image", nargs=1, metavar='IMAGE')
+    args = parser.parse_args()
+    # print(args.decode)
+    # print(args.encode)
+
+    if args.encode:
+        st.encode(args.encode[0], args.encode[1])
+        print('Encoded')
+    if args.decode:
+        print(st.decode(args.decode[0]))
