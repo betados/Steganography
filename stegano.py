@@ -1,8 +1,9 @@
 import sys
 from PIL import Image
 
+
 class Stegano(object):
-    def encode(self, image, info='Aguangromanuer una peich ola k ase'):
+    def encode(self, image, info):
         im = Image.open(image)
         px = im.load()
         try:
@@ -21,7 +22,7 @@ class Stegano(object):
                 alpha = int(alpha, 2)
                 auxList.append(alpha)
                 px[i, j] = tuple(v for v in auxList)
-            im.save('dirty.png')
+        im.save('dirty.png')
 
     def decode(self, image):
         im = Image.open(image)
@@ -48,5 +49,3 @@ if __name__ == "__main__":
             print(st.decode('dirty.png'))
     except:
         pass
-
-
