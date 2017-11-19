@@ -1,10 +1,22 @@
+#!/usr/bin/env python3
+
 from PIL import Image
 import argparse
 
 
 class Stegano(object):
-    def encode(self, info, image):
-        im = Image.open(image)
+    # ascii code max bit length
+    length = 7
+
+    # TODO poner criptografia
+
+    @staticmethod
+    def encode(info, image, imageOut='dirty.png'):
+        try:
+            im = Image.open(image)
+        except:
+            print("No such image", image)
+            exit()
         px = im.load()
         if isinstance(px[0, 0], int) or len(px[0, 0]) != 4:
             im = im.convert("RGBA")
@@ -14,36 +26,56 @@ class Stegano(object):
         except:
             exit()
 
+        line = 0
+        lineWidth = im.size[0]
         for i, char in enumerate(info):
+            if i == lineWidth:
+                line += 1
             binario = bin(ord(char))[2:]
-            while len(binario) < 7:
+            while len(binario) < Stegano.length:
                 binario = '0' + binario
-            for j, bit in enumerate(binario):
-                auxList = [v for v in px[i, j][:3]]
-                alpha = bin(px[i, j][3])
-                alpha = alpha[:-1] + bit
-                alpha = int(alpha, 2)
-                auxList.append(alpha)
-                px[i, j] = tuple(v for v in auxList)
-        im.save('dirty.png')
+            try:
+                for j, bit in enumerate(binario):
+                    auxList = [v for v in px[i-line*lineWidth, j+line*Stegano.length][:3]]
+                    alpha = bin(px[i-line*lineWidth, j+line*Stegano.length][3])
+                    alpha = alpha[:-1] + bit
+                    alpha = int(alpha, 2)
+                    auxList.append(alpha)
+                    px[i-line*lineWidth, j+line*Stegano.length] = tuple(v for v in auxList)
+            except:
+                print('No cupo todo!')
+                break
+        im.save(imageOut)
 
-    def decode(self, image):
-        im = Image.open(image)
+    @staticmethod
+    def decode(image):
+        try:
+            im = Image.open(image)
+        except:
+            print("No such image", image)
+            exit()
         px = im.load()
         info = ''
         code = ''
         i = 0
+        line = 0
+        lineWidth = im.size[0]
         while i == 0 or 31 < int(code, 2) < 127:
             code = ''
-            for j in range(7):
-                code += bin(px[i, j][3])[-1]
+            if i == lineWidth:
+                line += 1
+            try:
+                for j in range(Stegano.length):
+                    code += bin(px[i-line*lineWidth, j+line*Stegano.length][3])[-1]
+            except:
+                break
             info += chr(int(code, 2))
             i += 1
         return info[:-1]
 
 
 if __name__ == "__main__":
-    st = Stegano()
+    # st = Stegano()
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-e", "--encode",
@@ -51,13 +83,20 @@ if __name__ == "__main__":
                              "\nIf the string contains spaces type it \"between quotes\"",
                         nargs=2,
                         metavar=('STRING', 'IMAGE'))
+    parser.add_argument('-o', "--output", help="output image when encoding", nargs=1, metavar='IMAGE')
     parser.add_argument("-d", "--decode", help="Decode from given image", nargs=1, metavar='IMAGE')
+
     args = parser.parse_args()
     # print(args.decode)
     # print(args.encode)
 
     if args.encode:
-        st.encode(args.encode[0], args.encode[1])
+        if args.output:
+            Stegano.encode(args.encode[0], args.encode[1], args.output[0])
+        else:
+            Stegano.encode(args.encode[0], args.encode[1])
         print('Encoded')
     if args.decode:
-        print(st.decode(args.decode[0]))
+        if args.output:
+            print("Output image is an argument only valid for encoding.")
+        print(Stegano.decode(args.decode[0]))
