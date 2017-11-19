@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+""" Stegano hides a string within an image.
+It puts each bit of the ascii code of each char in the LSB of the alpha channel of a RGBA image """
+
 from PIL import Image
 import argparse
 
@@ -8,7 +11,7 @@ class Stegano(object):
     # ascii code max bit length
     length = 7
 
-    # TODO poner criptografia
+    # TODO add encryption option
 
     @staticmethod
     def encode(info, image, imageOut='dirty.png'):
@@ -36,12 +39,13 @@ class Stegano(object):
                 binario = '0' + binario
             try:
                 for j, bit in enumerate(binario):
-                    auxList = [v for v in px[i-line*lineWidth, j+line*Stegano.length][:3]]
-                    alpha = bin(px[i-line*lineWidth, j+line*Stegano.length][3])
+                    # todo use every channel
+                    auxList = [v for v in px[i - line * lineWidth, j + line * Stegano.length][:3]]
+                    alpha = bin(px[i - line * lineWidth, j + line * Stegano.length][3])
                     alpha = alpha[:-1] + bit
                     alpha = int(alpha, 2)
                     auxList.append(alpha)
-                    px[i-line*lineWidth, j+line*Stegano.length] = tuple(v for v in auxList)
+                    px[i - line * lineWidth, j + line * Stegano.length] = tuple(v for v in auxList)
             except:
                 print('No cupo todo!')
                 break
@@ -66,7 +70,7 @@ class Stegano(object):
                 line += 1
             try:
                 for j in range(Stegano.length):
-                    code += bin(px[i-line*lineWidth, j+line*Stegano.length][3])[-1]
+                    code += bin(px[i - line * lineWidth, j + line * Stegano.length][3])[-1]
             except:
                 break
             info += chr(int(code, 2))
@@ -75,20 +79,17 @@ class Stegano(object):
 
 
 if __name__ == "__main__":
-    # st = Stegano()
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-e", "--encode",
-                        help="Encode given string into given image. "
+                        help="Encode the given string into given image. "
                              "\nIf the string contains spaces type it \"between quotes\"",
                         nargs=2,
                         metavar=('STRING', 'IMAGE'))
-    parser.add_argument('-o', "--output", help="output image when encoding", nargs=1, metavar='IMAGE')
-    parser.add_argument("-d", "--decode", help="Decode from given image", nargs=1, metavar='IMAGE')
+    parser.add_argument('-o', "--output", help="Output image when encoding", nargs=1, metavar='IMAGE')
+    parser.add_argument("-d", "--decode", help="Decode from the given image", nargs=1, metavar='IMAGE')
 
     args = parser.parse_args()
-    # print(args.decode)
-    # print(args.encode)
 
     if args.encode:
         if args.output:
