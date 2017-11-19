@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """ Stegano hides a string within an image.
-It puts each bit of the ascii code of each char in the LSB of the alpha channel of a RGBA image """
+It puts each bit of the ascii code of each char in the LSB of each channel of a RGBA image """
 
 from PIL import Image
 import argparse
@@ -9,7 +9,9 @@ import argparse
 
 class Stegano(object):
     # ascii code max bit length
-    length = 7
+    """only 7 is needed, made it 8 to be multiple of the four channels.
+    This way each char is hided in two pixels"""
+    length = 8
 
     # TODO add encryption option
 
@@ -30,26 +32,40 @@ class Stegano(object):
             exit()
 
         line = 0
-        lineWidth = im.size[0]
-        for i, char in enumerate(info):
-            if i == lineWidth:
-                line += 1
-            binario = bin(ord(char))[2:]
-            while len(binario) < Stegano.length:
-                binario = '0' + binario
+        x = 0
+        lineWidth, lineCant = im.size
+        for char in info:
+            binario = Stegano.char2binario(char)
             try:
-                for j, bit in enumerate(binario):
-                    # todo use every channel
-                    auxList = [v for v in px[i - line * lineWidth, j + line * Stegano.length][:3]]
-                    alpha = bin(px[i - line * lineWidth, j + line * Stegano.length][3])
-                    alpha = alpha[:-1] + bit
-                    alpha = int(alpha, 2)
-                    auxList.append(alpha)
-                    px[i - line * lineWidth, j + line * Stegano.length] = tuple(v for v in auxList)
+                # todo averiguar que pasa cuando la imagen tiene ancho de pixeles impar
+                auxList1 = [int(bin(v)[:-1] + bit, 2) for v, bit in zip(px[x, line], binario[:4])]
+                auxList2 = [int(bin(v)[:-1] + bit, 2) for v, bit in zip(px[x+1, line], binario[4:])]
+                px[x, line] = tuple(v for v in auxList1)
+                px[x+1, line] = tuple(v for v in auxList2)
+                # alpha = bin(px[line, x][3])
+                # alpha = alpha[:-1] + bit
+                # alpha = int(alpha, 2)
+                # auxList.append(alpha)
+                # px[i - line * lineWidth, j + line * Stegano.length] = tuple(v for v in auxList)
+                # px[x, line] = (0, 0, 0, 0)
+                x += 2
+                if x >= lineWidth:
+                    line += 1
+                    x = 0
+                if line > lineCant:
+                    print('No cupo todo!')
+                    break
             except:
                 print('No cupo todo!')
                 break
         im.save(imageOut)
+
+    @staticmethod
+    def char2binario(char):
+        binario = bin(ord(char))[2:]
+        while len(binario) < Stegano.length:
+            binario = '0' + binario
+        return binario
 
     @staticmethod
     def decode(image):
@@ -60,21 +76,26 @@ class Stegano(object):
             exit()
         px = im.load()
         info = ''
-        code = ''
-        i = 0
+        x = 0
         line = 0
         lineWidth = im.size[0]
-        while i == 0 or 31 < int(code, 2) < 127:
-            code = ''
-            if i == lineWidth:
-                line += 1
+        while x == 0 or 31 < int(code, 2) < 127:
             try:
-                for j in range(Stegano.length):
-                    code += bin(px[i - line * lineWidth, j + line * Stegano.length][3])[-1]
-            except:
+                auxList1 = [bin(v)[-1] for v in px[x, line]]
+                auxList2 = [bin(v)[-1] for v in px[x+1, line]]
+                auxList = auxList1 + auxList2
+                code = ''.join(auxList)
+                # print(code)
+                # code += bin(px[i - line * lineWidth, j + line * Stegano.length][3])[-1]
+                x += 2
+                if x >= lineWidth:
+                    line += 1
+                    x = 0
+            except Exception as e:
+                print(e)
                 break
+
             info += chr(int(code, 2))
-            i += 1
         return info[:-1]
 
 
