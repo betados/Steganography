@@ -37,19 +37,12 @@ class Stegano(object):
         for char in info:
             binario = Stegano.char2binario(char)
             try:
-                # todo averiguar que pasa cuando la imagen tiene ancho de pixeles impar
                 auxList1 = [int(bin(v)[:-1] + bit, 2) for v, bit in zip(px[x, line], binario[:4])]
                 auxList2 = [int(bin(v)[:-1] + bit, 2) for v, bit in zip(px[x+1, line], binario[4:])]
                 px[x, line] = tuple(v for v in auxList1)
                 px[x+1, line] = tuple(v for v in auxList2)
-                # alpha = bin(px[line, x][3])
-                # alpha = alpha[:-1] + bit
-                # alpha = int(alpha, 2)
-                # auxList.append(alpha)
-                # px[i - line * lineWidth, j + line * Stegano.length] = tuple(v for v in auxList)
-                # px[x, line] = (0, 0, 0, 0)
                 x += 2
-                if x >= lineWidth:
+                if x >= lineWidth-1:
                     line += 1
                     x = 0
                 if line > lineCant:
@@ -85,10 +78,8 @@ class Stegano(object):
                 auxList2 = [bin(v)[-1] for v in px[x+1, line]]
                 auxList = auxList1 + auxList2
                 code = ''.join(auxList)
-                # print(code)
-                # code += bin(px[i - line * lineWidth, j + line * Stegano.length][3])[-1]
                 x += 2
-                if x >= lineWidth:
+                if x >= lineWidth-1:
                     line += 1
                     x = 0
             except Exception as e:
