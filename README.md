@@ -1,7 +1,7 @@
 # Steganography
 An script to hide and retrieve information within photographies.
 
-usage: stegano.py [-h] [-e STRING IMAGE] [-d IMAGE]
+usage: steganos.py [-h] [-e STRING IMAGE] [-o IMAGE] [-d IMAGE]
 
 optional arguments:
 * -h, --help  -->  show this help message and exit

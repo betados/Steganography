@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-""" Stegano hides a string within an image.
+""" Steganos hides a string within an image.
 It puts each bit of the ascii code of each char in the LSB of each channel of a RGBA image """
 
 from PIL import Image
 import argparse
 
 
-class Stegano(object):
+class Steganos(object):
     # ascii code max bit length
     """only 7 is needed, made it 8 to be multiple of the four channels.
     This way each char is hided in two pixels"""
@@ -35,7 +35,7 @@ class Stegano(object):
         x = 0
         lineWidth, lineCant = im.size
         for char in info:
-            binario = Stegano.char2binario(char)
+            binario = Steganos.char2binario(char)
             try:
                 auxList1 = [int(bin(v)[:-1] + bit, 2) for v, bit in zip(px[x, line], binario[:4])]
                 auxList2 = [int(bin(v)[:-1] + bit, 2) for v, bit in zip(px[x+1, line], binario[4:])]
@@ -56,7 +56,7 @@ class Stegano(object):
     @staticmethod
     def char2binario(char):
         binario = bin(ord(char))[2:]
-        while len(binario) < Stegano.length:
+        while len(binario) < Steganos.length:
             binario = '0' + binario
         return binario
 
@@ -105,11 +105,11 @@ if __name__ == "__main__":
 
     if args.encode:
         if args.output:
-            Stegano.encode(args.encode[0], args.encode[1], args.output[0])
+            Steganos.encode(args.encode[0], args.encode[1], args.output[0])
         else:
-            Stegano.encode(args.encode[0], args.encode[1])
+            Steganos.encode(args.encode[0], args.encode[1])
         print('Encoded')
     if args.decode:
         if args.output:
             print("Output image is an argument only valid for encoding.")
-        print(Stegano.decode(args.decode[0]))
+        print(Steganos.decode(args.decode[0]))
