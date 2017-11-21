@@ -14,8 +14,6 @@ class Steganos(object):
     This way each char is hided in two pixels"""
     length = 8
 
-    # TODO add encryption option
-
     @staticmethod
     def encode(info, image, imageOut, password):
         try:
