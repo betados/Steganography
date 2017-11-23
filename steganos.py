@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 """ Steganos hides a string within an image.
-It puts each bit of the ascii code of each char in the LSB of each channel of a RGBA image """
+It puts each bit of the ascii code of each char in the LSB of each channel of a RGBA image.
+It has the option to hide it encrypted via AES algorithm
+"""
 
 from PIL import Image
 import argparse
@@ -61,7 +63,7 @@ class Steganos(object):
 
     @staticmethod
     def char2binario(char):
-        print(char)
+        # print(char)
         binario = bin(ord(char))[2:]
         while len(binario) < Steganos.length:
             binario = '0' + binario
@@ -112,15 +114,18 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--decode", help="Decode from the given image", nargs=1, metavar='IMAGE')
     parser.add_argument("-p", "--password",
                         help="password in case you want to hide the message encripted "
-                             "or you want to retrive an encripted one",
+                             "or you want to retrive an encripted one. The longer the better, up to 20 chars",
                         nargs=1, metavar='PASSWORD')
 
     args = parser.parse_args()
 
-    if args.encode:
+    if args.encode and not args.decode:
         Steganos.encode(args.encode[0], args.encode[1], args.output, args.password)
         print('Encoded')
-    if args.decode:
+    if args.decode and not args.encode:
         if args.output:
             print("Output image is an argument only valid for encoding.")
         print(Steganos.decode(args.decode[0], args.password))
+
+    if args.decode and args.encode:
+        print("You cannot encode and decode in the same execution")
