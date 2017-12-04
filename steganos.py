@@ -10,7 +10,6 @@ import argparse
 import encryption as crypto
 from getpass import getpass
 
-
 class Steganos(object):
     # ascii code max bit length
     """only 7 is needed, made it 8 to be multiple of the four channels.
@@ -104,16 +103,12 @@ class Steganos(object):
 
 
 if __name__ == "__main__":
-    # FIXME problema gordo de seguridad. EL historial de la terminal recuerda todo lo tecleado
+
 
     parser = argparse.ArgumentParser(description="""An script to hide and retrieve information within photographs.
 It puts each bit of the ascii code of each char in the LSB of each channel of a RGBA image.
 It has the option to hide it encrypted via AES algorithm.""")
-    parser.add_argument("-e", "--encode",
-                        help="Encode the given string into given image. "
-                             "\nIf the string contains spaces type it \"between quotes\"",
-                        nargs=2,
-                        metavar=('STRING', 'IMAGE'))
+    parser.add_argument("-e", "--encode", help="Encode the given string into given image.", nargs=1, metavar='IMAGE')
     parser.add_argument('-o', "--output", help="Output image when encoding", nargs=1, metavar='IMAGE')
     parser.add_argument("-d", "--decode", help="Decode from the given image", nargs=1, metavar='IMAGE')
     parser.add_argument('-p', '--password', action='store_true', dest='password',
@@ -127,7 +122,8 @@ It has the option to hide it encrypted via AES algorithm.""")
         password = getpass()
 
     if args.encode and not args.decode:
-        Steganos.encode(args.encode[0], args.encode[1], args.output, password)
+        info = input('Message: ')
+        Steganos.encode(info, args.encode[0], args.output, password)
         print('Encoded')
     if args.decode and not args.encode:
         if args.output:
