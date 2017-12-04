@@ -1,4 +1,5 @@
 .idea
 *.png
 *.jpg
+*prueba*
 __pycache__/

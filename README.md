@@ -1,5 +1,5 @@
 # Steganography
-An script to hide and retrieve information within photographies.
+An script to hide and retrieve information within photographs.
 It puts each bit of the ascii code of each char in the LSB of each channel of a RGBA image.
 It has the option to hide it encrypted via AES algorithm.
 

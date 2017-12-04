@@ -8,6 +8,7 @@ It has the option to hide it encrypted via AES algorithm
 from PIL import Image
 import argparse
 import encryption as crypto
+from getpass import getpass
 
 
 class Steganos(object):
@@ -37,7 +38,7 @@ class Steganos(object):
             exit()
 
         if password:
-            info = crypto.encrypt(info, password[0])
+            info = crypto.encrypt(info, password)
 
         line = 0
         x = 0
@@ -98,13 +99,16 @@ class Steganos(object):
             info += chr(int(code, 2))
 
         if password:
-            return crypto.decrypt(info[:-1], password[0])
+            return crypto.decrypt(info[:-1], password)
         return info[:-1]
 
 
 if __name__ == "__main__":
+    # FIXME problema gordo de seguridad. EL historial de la terminal recuerda todo lo tecleado
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="""An script to hide and retrieve information within photographs.
+It puts each bit of the ascii code of each char in the LSB of each channel of a RGBA image.
+It has the option to hide it encrypted via AES algorithm.""")
     parser.add_argument("-e", "--encode",
                         help="Encode the given string into given image. "
                              "\nIf the string contains spaces type it \"between quotes\"",
@@ -112,20 +116,23 @@ if __name__ == "__main__":
                         metavar=('STRING', 'IMAGE'))
     parser.add_argument('-o', "--output", help="Output image when encoding", nargs=1, metavar='IMAGE')
     parser.add_argument("-d", "--decode", help="Decode from the given image", nargs=1, metavar='IMAGE')
-    parser.add_argument("-p", "--password",
-                        help="password in case you want to hide the message encripted "
-                             "or you want to retrive an encripted one. The longer the better, up to 20 chars",
-                        nargs=1, metavar='PASSWORD')
+    parser.add_argument('-p', '--password', action='store_true', dest='password',
+                        help="hidden password prompt in case you want to hide the message encriptedor "
+                             "you want to retrive an encripted one. The longer the better, up to 20 chars")
 
     args = parser.parse_args()
 
+    password = None
+    if args.password:
+        password = getpass()
+
     if args.encode and not args.decode:
-        Steganos.encode(args.encode[0], args.encode[1], args.output, args.password)
+        Steganos.encode(args.encode[0], args.encode[1], args.output, password)
         print('Encoded')
     if args.decode and not args.encode:
         if args.output:
             print("Output image is an argument only valid for encoding.")
-        print(Steganos.decode(args.decode[0], args.password))
+        print(Steganos.decode(args.decode[0], password))
 
     if args.decode and args.encode:
         print("You cannot encode and decode in the same execution")
