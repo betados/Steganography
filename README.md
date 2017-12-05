@@ -16,5 +16,6 @@ optional arguments:
 
 Dependencies:
 * Pycryptodome: pip install pycryptodome
+
 or
 * pip install -r requirements.txt
